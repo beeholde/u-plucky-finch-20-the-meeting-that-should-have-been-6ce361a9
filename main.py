@@ -1,33 +1,32 @@
-"""Emit the competition line to the expected output file.
+# One-line entry writer for the meeting-email competition.
+# The joke is kept verbatim below; the script only checks its shape
+# and drops the encoded bytes into the output folder.
 
-The program keeps the submitted sentence in one constant, confirms that
-it is a non-empty single line within the length limit, and stores its
-UTF-8 bytes without adding a newline. It uses only Python's standard
-library and performs no network access.
-"""
+import os
 
-from pathlib import Path
-
-ENTRY_TEXT = "The meeting's only decision was to cc the one person who could have answered the email alone."
-DESTINATION = Path("/output/entry.txt")
+LINE = "The meeting's only decision was to cc the one person who could have answered the email alone."
+OUT_DIR = "/output"
+OUT_NAME = "entry.txt"
 
 
-def prepare_payload(text: str) -> bytes:
-    """Return the encoded entry after checking the basic format."""
-    if text.strip() == "":
-        raise ValueError("the entry cannot be blank")
-    if "\n" in text or "\r" in text:
-        raise ValueError("the entry must stay on one line")
-    if len(text) > 200:
-        raise ValueError("the entry exceeds 200 characters")
-    return text.encode("utf-8")
+def checked_bytes(value):
+    # Guard the competition shape before anything reaches disk.
+    if not value.strip():
+        raise ValueError("empty entry")
+    if "\n" in value or "\r" in value:
+        raise ValueError("entry must be a single line")
+    if len(value) > 200:
+        raise ValueError("entry too long")
+    return value.encode("utf-8")
 
 
-def run() -> None:
-    payload = prepare_payload(ENTRY_TEXT)
-    DESTINATION.parent.mkdir(parents=True, exist_ok=True)
-    DESTINATION.write_bytes(payload)
+def main():
+    data = checked_bytes(LINE)
+    os.makedirs(OUT_DIR, exist_ok=True)
+    target = os.path.join(OUT_DIR, OUT_NAME)
+    with open(target, "wb") as handle:
+        handle.write(data)
 
 
 if __name__ == "__main__":
-    run()
+    main()
