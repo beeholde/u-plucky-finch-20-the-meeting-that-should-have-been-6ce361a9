@@ -8,7 +8,7 @@ library and performs no network access.
 
 from pathlib import Path
 
-ENTRY_TEXT = "My boss replied 'let's discuss' to my email, and forty minutes later the discussion was 'send it again.'"
+ENTRY_TEXT = "The meeting's only decision was to cc the one person who could have answered the email alone."
 DESTINATION = Path("/output/entry.txt")
 
 
