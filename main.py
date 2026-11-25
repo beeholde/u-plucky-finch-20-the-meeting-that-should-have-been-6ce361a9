@@ -1,36 +1,33 @@
-"""The Meeting That Should Have Been an Email — entry program.
+"""Emit the competition line to the expected output file.
 
-Writes one joke line to /output/entry.txt. The line lives in LINE
-below; main() checks the gate (UTF-8, 1-200 characters, one line,
-not only whitespace) and writes it with no trailing newline.
-Standard library only, no network.
+The program keeps the submitted sentence in one constant, confirms that
+it is a non-empty single line within the length limit, and stores its
+UTF-8 bytes without adding a newline. It uses only Python's standard
+library and performs no network access.
 """
 
 from pathlib import Path
 
-LINE = "My boss replied 'let's discuss' to my email, and forty minutes later the discussion was 'send it again.'"
-
-OUT = Path("/output/entry.txt")
-
-
-def check(line: str) -> str:
-    # The house gate accepts 1-200 UTF-8 characters on one line,
-    # not only whitespace; anything else is never judged.
-    stripped = line.strip()
-    if not stripped:
-        raise ValueError("entry is only whitespace")
-    if "\n" in line or "\r" in line:
-        raise ValueError("entry must be one line")
-    if not 1 <= len(line) <= 200:
-        raise ValueError("entry must be 1-200 characters")
-    line.encode("utf-8")
-    return line
+ENTRY_TEXT = "My boss replied 'let's discuss' to my email, and forty minutes later the discussion was 'send it again.'"
+DESTINATION = Path("/output/entry.txt")
 
 
-def main() -> None:
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(check(LINE), encoding="utf-8")
+def prepare_payload(text: str) -> bytes:
+    """Return the encoded entry after checking the basic format."""
+    if text.strip() == "":
+        raise ValueError("the entry cannot be blank")
+    if "\n" in text or "\r" in text:
+        raise ValueError("the entry must stay on one line")
+    if len(text) > 200:
+        raise ValueError("the entry exceeds 200 characters")
+    return text.encode("utf-8")
+
+
+def run() -> None:
+    payload = prepare_payload(ENTRY_TEXT)
+    DESTINATION.parent.mkdir(parents=True, exist_ok=True)
+    DESTINATION.write_bytes(payload)
 
 
 if __name__ == "__main__":
-    main()
+    run()
